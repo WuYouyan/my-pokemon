@@ -6,65 +6,87 @@
         Pokemon List
       </h1>   
     </div>
+
+    <input type="text" placeholder="search name" v-model="searchTerm" v-on:keyup.enter="filterPokemonList">
     <div class="container">
       <ul>
-        <li v-for="pokemon in pokemonList" :key="pokemon.name">{{pokemon.name}}</li>
+        <li v-for="(pokemon, index) in pokemonList" :key="index" >{{pokemon.name}}
+          <div v-if="pokemon&&pokemon.sprites">
+             <img :src="pokemon.sprites.front_default" alt="sprite" width="96px" height="96px">
+          </div>
+          <div v-if="!pokemon.sprites">
+             <img src:="'~/assets/images/loading.png'" alt="loading" width="96px" height="96px">
+          </div>
+          <nuxt-link :to="'/'+pokemon.name">detail</nuxt-link>
+        </li>
       </ul>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import axios from 'axios';
+<script>
+import axios from 'axios'
 
-const PATH_BASE = 'https://pokeapi.co/api/v2/';
-const LIMIT = 'limit=';
+const PATH_BASE = 'https://pokeapi.co/api/v2/'
+const POKEMON = 'pokemon'
+const LIMIT = 'limit='
+const OFFSET = 'offset='
 
-const getPokemonData$ = (url:string): Promise<any> => {
-  return axios.get(url);
+
+const getPokemonData$ = url => {
+  return axios.get(url)
 }
+export const getPokemon$ = (name) =>
+  axios.get(`${PATH_BASE+POKEMON}/${name}`).then(res => res.data)
 
-const getPokemons$ = (listNumber: number): Promise<any[]> => 
-  axios.get(`${PATH_BASE}pokemon?${LIMIT}${listNumber}`).then(
+export const getPokemons$ = (listNumber) => 
+  axios.get(`${PATH_BASE+POKEMON}?${LIMIT+listNumber}`).then(
     res => {
-      let pkList = res.data.results; 
-      // for (let index = 0; index < pkList.length; index++) {
-      //   getPokemonData$(pkList[index].url).then(res =>
-      //     pkList[index].sprites = res.data.sprites
-      //   );
-      // }
-      pkList.map((pk:any) =>
+      let pkList = res.data.results
+      pkList.map((pk) =>
         getPokemonData$(pk.url).then(res =>
           pk.sprites = res.data.sprites
         )
       )
-      return pkList;
+      return pkList
     } 
   )
 
-
 export default {
-
-  // asyncData () {
-  //   return getPokemons$(2).then(
-  //     (res) => {
-  //       console.log('res: ', res);
-  //       return { pokemonList: res }
-  //     }
-  //   );
-  // }
-  async asyncData () {
-    const result = await getPokemons$(50);
+  data() {
+    return {
+      entirePokemonsCache: [],
+      pokemonList: [],
+      searchTerm: "",
+    }
+  },
+  methods: {
+    filterPokemonList: function(event) {
+      if(this.entirePokemonsCache.length===0){
+        this.entirePokemonsCache = this.pokemonList
+      }
+      console.log('enter up!')
+      this.pokemonList = [...this.entirePokemonsCache]
+      this.pokemonList = this.pokemonList.filter(pk =>
+        pk.name.includes(this.searchTerm)
+      );
+    }
+  },
+  async asyncData (context) {
+    const result = await getPokemons$(100)
+    console.log('result: ', result)
+    // this.entirePokemonsCache = result;
     return { pokemonList: result }
-  }
+  },
+  fetch(context) { }
 }
 </script>
 
-<style>
+<style scoped>
+
 .main {
   margin: 0 ;
   padding: 10em ;
-  background: #f59944;
 }
 
 .container {

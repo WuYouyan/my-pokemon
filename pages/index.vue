@@ -7,15 +7,17 @@
       </h1>   
     </div>
 
-    <input type="text" placeholder="search name" v-model="searchTerm" v-on:keyup.enter="filterPokemonList">
+    <input type="text" placeholder="search name" v-model="searchTerm" @keyup.enter="filterPokemonList">
+    <button @click="clearSearchTerm">clear</button>
     <div class="container">
       <ul>
         <li v-for="(pokemon, index) in pokemonList" :key="index" >{{pokemon.name}}
+          <!-- TODO: fixed the image loading  -->
           <div v-if="pokemon&&pokemon.sprites">
              <img :src="pokemon.sprites.front_default" alt="sprite" width="96px" height="96px">
           </div>
           <div v-if="!pokemon.sprites">
-             <img src:="'~/assets/images/loading.png'" alt="loading" width="96px" height="96px">
+             <img src="~/assets/images/loading.png" alt="loading" width="96px" height="60px">
           </div>
           <nuxt-link :to="'/'+pokemon.name">detail</nuxt-link>
         </li>
@@ -61,7 +63,7 @@ export default {
     }
   },
   methods: {
-    filterPokemonList: function(event) {
+    filterPokemonList: function() {
       if(this.entirePokemonsCache.length===0){
         this.entirePokemonsCache = this.pokemonList
       }
@@ -70,15 +72,22 @@ export default {
       this.pokemonList = this.pokemonList.filter(pk =>
         pk.name.includes(this.searchTerm)
       );
+    },
+    clearSearchTerm() {
+      this.searchTerm = ""
+      this.filterPokemonList()
     }
+
   },
   async asyncData (context) {
-    const result = await getPokemons$(100)
+    const result = await getPokemons$(50)
     console.log('result: ', result)
     // this.entirePokemonsCache = result;
     return { pokemonList: result }
   },
-  fetch(context) { }
+  mounted () {
+
+  }
 }
 </script>
 

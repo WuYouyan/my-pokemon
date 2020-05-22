@@ -7,7 +7,12 @@ export const state = () => ({
 
 export const mutations = {
     add (state, pokemonName) {
-        state.pokemonEquipe.push({'name': pokemonName})
+        if (state.pokemonEquipe.length < 6) {
+            state.pokemonEquipe.push({'name': pokemonName})
+        }
+        else{
+            window.alert('You can only have 6 pokemons maximum within a group')
+        }
     },
     remove (state, name) {
         state.pokemonEquipe.splice(

@@ -1,5 +1,5 @@
 <template>
-  <div class="Main">
+  <div>
     <div>
       <!-- <logo /> -->
       <h1 class="title">
@@ -7,11 +7,15 @@
       </h1>   
     </div>
 
-    <input type="text" placeholder="search name" v-model="searchTerm" @keyup.enter="filterPokemonList">
+    <input 
+        class="search" 
+        type="text" 
+        placeholder="search name" 
+        v-model="searchTerm" 
+        @keyup.enter="filterPokemonList">
     <button @click="clearSearchTerm">clear</button>
     <div class="container">
-      <ul>
-        <li v-for="(pokemon, index) in pokemonList" :key="index" >{{pokemon.name}}
+        <div class="card" v-for="(pokemon, index) in pokemonList" :key="index" >{{pokemon.name}}
           <!-- TODO: fixed the image loading  -->
           <div v-if="pokemon&&pokemon.sprites">
              <img :src="pokemon.sprites.front_default" alt="sprite" width="96px" height="96px">
@@ -19,9 +23,11 @@
           <div v-if="!pokemon.sprites">
              <img src="~/assets/images/loading.png" alt="loading" width="96px" height="60px">
           </div>
-          <nuxt-link :to="'/'+pokemon.name">detail</nuxt-link>
-        </li>
-      </ul>
+          <nuxt-link :to="'/'+pokemon.name">
+            <b-button class="card-btn" size="sm" variant="outline-dark">detail</b-button>
+          </nuxt-link>
+            <b-button class="card-btn" size="sm" variant="outline-dark" @click="addToEquipe(pokemon)">add</b-button>
+        </div>
     </div>
   </div>
 </template>
@@ -76,42 +82,52 @@ export default {
     clearSearchTerm() {
       this.searchTerm = ""
       this.filterPokemonList()
+    },
+    addToEquipe(pokemon){
+      this.$store.commit('add',pokemon.name)
     }
-
   },
   async asyncData (context) {
-    const result = await getPokemons$(50)
+    const result = await getPokemons$(100)
     console.log('result: ', result)
     // this.entirePokemonsCache = result;
     return { pokemonList: result }
   },
-  mounted () {
+  computed () {
 
   }
 }
 </script>
 
 <style scoped>
-
-.main {
-  margin: 0 ;
-  padding: 10em ;
+@media only screen and (min-width: 482px){
+    .search {
+      margin-left: 15px;
+      width: 200px;
+    }
 }
-
+.card { 
+  margin: 2px;
+}
 .container {
-  margin: 0 auto;
+  /* padding: 2px; */
+  margin: 10px 0;
   display: flex;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: center;
 }
-
+.card-btn {
+  max-width: 53px;
+  margin-bottom: 2px;
+}
 .title {
   font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   display: block;
   text-align: center;
   font-weight: 300;
-  font-size: 8vh;
+  font-size: 2rem;
   color: #35495e;
   letter-spacing: 1px;
 }

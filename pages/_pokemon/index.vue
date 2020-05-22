@@ -34,6 +34,8 @@ export default {
     }
 }
 </script>
-<style>
-
+<style scoped>
+    .Main {
+        padding-left: 20px;
+    }
 </style>

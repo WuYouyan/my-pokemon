@@ -1,7 +1,7 @@
 
 export const state = () => ({
-    pokemonEquipe: [{name: 'test'},{name:'test1'},{name:'test2'},{name:'test3'}], //Mock pokemonEquipe
-    // pokemonEquipe: [],
+    // pokemonEquipe: [{name: 'test'},{name:'test1'},{name:'test2'},{name:'test3'}], //Mock pokemonEquipe
+    pokemonEquipe: [],
     pokemonList: []
 })
 

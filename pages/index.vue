@@ -47,23 +47,21 @@ const getPokemonData$ = url => {
 export const getPokemon$ = (name) =>
   axios.get(`${PATH_BASE+POKEMON}/${name}`).then(res => res.data)
 
-export const getPokemons$ = (listNumber) => 
-  axios.get(`${PATH_BASE+POKEMON}?${LIMIT+listNumber}`).then(
-    res => {
-      let pkList = res.data.results
-      pkList.map((pk) =>
-        getPokemonData$(pk.url).then(res =>
-          pk.sprites = res.data.sprites
-        )
-      )
-      return pkList
-    } 
-  )
+export const getPokemons$ = (listNumber) => {
+  const pkList= [];
+  for (let index = 1; index <= listNumber; index++) {
+    axios.get(`${PATH_BASE+POKEMON}/${index}`).then(
+      res => {
+         pkList.push(res.data)
+      } 
+    )
+  }
+  return pkList;
+}
 
 export default {
   data() {
     return {
-      entirePokemonsCache: [],
       pokemonList: [],
       searchTerm: "",
     }
@@ -88,14 +86,11 @@ export default {
     }
   },
   async asyncData (context) {
-    const result = await getPokemons$(100)
-    console.log('result: ', result)
+    const result = await getPokemons$(55)
     // this.entirePokemonsCache = result;
     return { pokemonList: result }
   },
-  computed () {
-
-  }
+  
 }
 </script>
 

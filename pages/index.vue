@@ -16,7 +16,6 @@
     <button @click="clearSearchTerm">clear</button>
     <div class="container">
         <div class="card" v-for="(pokemon, index) in pokemonList" :key="index" >{{pokemon.name}}
-          <!-- TODO: fixed the image loading  -->
           <div v-if="pokemon&&pokemon.sprites">
              <img :src="pokemon.sprites.front_default" alt="sprite" width="96px" height="96px">
           </div>
@@ -40,6 +39,21 @@ const POKEMON = 'pokemon'
 const LIMIT = 'limit='
 const OFFSET = 'offset='
 
+const ls = localStorage
+const POKEMONLIST = POKEMON + '.pokemonList'
+const POKEMONEQUIPE = POKEMON + '.pokemonEquipe'
+
+export const persist = (key, value) => {
+  if (!value && value === undefined) {
+    return ;
+  }
+  const arr = JSON.stringify(value);
+  ls.setItem(key,arr);
+}
+export const getList =(key) => {
+  const before = ls.getItem(key);
+  return before ? JSON.parse(before) : [];
+}
 
 const getPokemonData$ = url => {
   return axios.get(url)
@@ -47,16 +61,29 @@ const getPokemonData$ = url => {
 export const getPokemon$ = (name) =>
   axios.get(`${PATH_BASE+POKEMON}/${name}`).then(res => res.data)
 
-export const getPokemons$ = (listNumber) => {
-  const pkList= [];
-  for (let index = 1; index <= listNumber; index++) {
-    axios.get(`${PATH_BASE+POKEMON}/${index}`).then(
-      res => {
-         pkList.push(res.data)
-      } 
-    )
-  }
-  return pkList;
+/**
+ *  @listNumber range: 1-807
+ *  if exceed 807 will get 'null', cause method realised by get id 
+ */
+export const getPokemons$ = (listNumber) => { 
+
+    const pkList = [];
+    for (let index = 1; index <= listNumber; index++) {
+      axios.get(`${PATH_BASE+POKEMON}/${index}`).then(
+        res => {
+          const obj = {};
+          obj.name = res.data.name;
+          obj.sprites = res.data.sprites;
+          pkList.push(obj)
+
+          if (index ==listNumber) { // when done persist
+            persist(POKEMONLIST,pkList)
+          }
+        } 
+      )
+      
+    }
+    return pkList;
 }
 
 export default {
@@ -68,11 +95,7 @@ export default {
   },
   methods: {
     filterPokemonList: function() {
-      if(this.entirePokemonsCache.length===0){
-        this.entirePokemonsCache = this.pokemonList
-      }
-      console.log('enter up!')
-      this.pokemonList = [...this.entirePokemonsCache]
+      this.pokemonList = getList(POKEMONLIST)
       this.pokemonList = this.pokemonList.filter(pk =>
         pk.name.includes(this.searchTerm)
       );
@@ -86,9 +109,12 @@ export default {
     }
   },
   async asyncData (context) {
-    const result = await getPokemons$(55)
-    // this.entirePokemonsCache = result;
+    if (getList(POKEMONLIST).length !==0) { // if pokemonList stored in localstorage, get from localstorage
+      return { pokemonList: getList(POKEMONLIST) }
+    }
+    const result = await getPokemons$(100)
     return { pokemonList: result }
+
   },
   
 }

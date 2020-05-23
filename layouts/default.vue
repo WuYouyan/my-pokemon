@@ -64,7 +64,6 @@ export default {
       },
       set(value) {
         this.$store.commit('updatePokemonEquipe', value)
-        // console.log('set: ',value) 
       }
     }
   },

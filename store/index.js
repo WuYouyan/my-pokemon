@@ -1,11 +1,17 @@
 
 export const state = () => ({
-    // pokemonEquipe: [{name: 'test'},{name:'test1'},{name:'test2'},{name:'test3'}], //Mock pokemonEquipe
     pokemonEquipe: [],
-    pokemonList: []
+    pokemonList: [] // not used
 })
 
 export const mutations = {
+
+    // PokemonList
+    setPokemonList(state, pkList) {
+        state.pokemonList = pkList
+    },
+
+    // PokemonEquipe
     add (state, pokemonName) {
         if (state.pokemonEquipe.length < 6) {
             state.pokemonEquipe.push({'name': pokemonName})

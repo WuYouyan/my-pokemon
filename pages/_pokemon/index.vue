@@ -25,11 +25,9 @@ export default {
         }
     },
     async asyncData (context) {
-        console.log(context.params.pokemon)
         let name = context.params.pokemon
         // let res = await axios.get(PATH_BASE+POKEMON+'/'+context.params.pokemon)
         let res = await getPokemon$(name)
-        console.log(name,": ", res)
         return { pokemon: res }
     }
 }

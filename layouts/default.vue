@@ -46,6 +46,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import draggable from 'vuedraggable';
+import { POKEMONEQUIPE, persist, getList } from '@/pages/index.vue';
 
 export default {
   components: {
@@ -60,10 +61,15 @@ export default {
   computed: {
     pokemonEquipe: {
       get() {
+        if (getList(POKEMONEQUIPE)) {
+          this.$store.commit('updatePokemonEquipe', getList(POKEMONEQUIPE))
+          return this.$store.state.pokemonEquipe
+        }
         return this.$store.state.pokemonEquipe
       },
       set(value) {
         this.$store.commit('updatePokemonEquipe', value)
+        persist(POKEMONEQUIPE,this.$store.state.pokemonEquipe)
       }
     }
   },
@@ -73,6 +79,8 @@ export default {
     },
     remove: function(name) {
         this.$store.commit('remove', name)
+        console.log('remove', name)
+        persist(POKEMONEQUIPE,this.$store.state.pokemonEquipe)
     }
   }
   

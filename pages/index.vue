@@ -39,9 +39,9 @@ const POKEMON = 'pokemon'
 const LIMIT = 'limit='
 const OFFSET = 'offset='
 
-const ls = localStorage
-const POKEMONLIST = POKEMON + '.pokemonList'
-const POKEMONEQUIPE = POKEMON + '.pokemonEquipe'
+export const ls = localStorage
+export const POKEMONLIST = POKEMON + '.pokemonList'
+export const POKEMONEQUIPE = POKEMON + '.pokemonEquipe'
 
 export const persist = (key, value) => {
   if (!value && value === undefined) {
@@ -77,7 +77,11 @@ export const getPokemons$ = (listNumber) => {
           pkList.push(obj)
 
           if (index ==listNumber) { // when done persist
-            persist(POKEMONLIST,pkList)
+            try {
+              persist(POKEMONLIST,pkList)
+            } catch (error) {
+              console.error('localstorage: ',error)
+            }
           }
         } 
       )
@@ -106,6 +110,7 @@ export default {
     },
     addToEquipe(pokemon){
       this.$store.commit('add',pokemon.name)
+      persist(POKEMONEQUIPE,this.$store.state.pokemonEquipe)
     }
   },
   async asyncData (context) {
@@ -114,7 +119,6 @@ export default {
     }
     const result = await getPokemons$(100)
     return { pokemonList: result }
-
   },
   
 }

@@ -73,7 +73,8 @@ export const getPokemons$ = (listNumber) => {
         res => {
           const obj = {};
           obj.name = res.data.name;
-          obj.sprites = res.data.sprites;
+          obj.sprites = {};
+          obj.sprites.front_default = res.data.sprites.front_default;
           pkList.push(obj)
 
           if (index ==listNumber) { // when done persist

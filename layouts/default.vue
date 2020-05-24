@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="sidebar">
-      <p>My Pokemon Team:</p>
+      <p>My Pokemon Team: 
+        <b-button 
+          size="sm" 
+          variant="outline-dark"
+          @click="share()">share</b-button>
+      </p>
       <div class="equipe">
         <!-- <ul>
           <li v-for="(pokemon, index) in pokemonEquipe" :key="index">
@@ -48,6 +53,18 @@ import { mapGetters } from 'vuex';
 import draggable from 'vuedraggable';
 import { POKEMONEQUIPE, persist, getList } from '@/pages/index.vue';
 
+export const copyToClipboard = (string) => {
+  if (!navigator.clipboard) {
+    alert('Clipboard is not allowed/authorized in your broswer');
+  } else {
+    navigator.clipboard.writeText(string).then(function() {
+      console.log('Copying url to clipboard was successful!');
+    }, function(err) {
+      console.error('Could not copy url: ', err);
+    });
+  }
+} 
+
 export default {
   components: {
     draggable
@@ -56,6 +73,29 @@ export default {
     return {
        enabled: true,
        dragging: false,
+    }
+  },
+  mounted() {
+    // console.log(this.$route.fullPath);
+
+    // TODO: can be extracted to a function
+    // Check, if query.team exists, get team data 
+    if (this.$route.query.team) {  
+
+      // console.log('path: ', this.$route.query.team);
+      const teamName = this.$route.query.team.split(',');
+      const team = teamName.map(name => ({'name':name }) );
+      if (window.confirm("Do you really want to use this pokemon team?")) {
+        if( team.length<=6 ){
+          this.$store.commit('updatePokemonEquipe', team);
+          persist(POKEMONEQUIPE,this.$store.state.pokemonEquipe);
+        } else {
+          alert('this pokemon team is not valid! please try another pokemon team');
+        }
+      }
+      
+      // TODO: add a validation function 
+      // here we can add a validate function to check pokemon team
     }
   },
   computed: {
@@ -81,9 +121,15 @@ export default {
         this.$store.commit('remove', name)
         console.log('remove', name)
         persist(POKEMONEQUIPE,this.$store.state.pokemonEquipe)
+    },
+    share: function() {
+      console.log('this.$store.state.pokemonEquipe',this.$store.state.pokemonEquipe)
+      let query = '?team=';
+      let names = this.$store.state.pokemonEquipe.map(pokemon => pokemon.name);
+      query += names.join();
+      copyToClipboard(query);
     }
   }
-  
 }
 </script>
 <style scoped>
